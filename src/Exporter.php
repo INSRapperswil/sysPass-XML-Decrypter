@@ -33,7 +33,7 @@ class Exporter
                 $account['login'],
                 $account['password'],
                 '', // Hostname.
-                'Customer: ' . $account['customer'],
+                'Client: ' . $account['client'],
                 $account['name'],
                 $account['category']
             ];

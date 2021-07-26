@@ -15,6 +15,7 @@ XML decrypter for [sysPass](https://github.com/nuxsmin/sysPass/).
  - php-xml
  - php-mbstring
  - php-mcrypt
+ - composer
  
 ## Installation
 
@@ -38,4 +39,4 @@ XML decrypter for [sysPass](https://github.com/nuxsmin/sysPass/).
  ./decrypt.php <path-to-encrypted-xml> <xml-export-key> <master-syspass-key> <dest-file> [format]
  ```
 
-Tested with PHP 7.0.15 and XML exported with sysPass 2.1.5.17041201.
+Tested with PHP 7.4.21 and XML exported with sysPass 3.0.
