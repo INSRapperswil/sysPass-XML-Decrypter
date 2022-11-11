@@ -38,5 +38,9 @@ XML decrypter for [sysPass](https://github.com/nuxsmin/sysPass/).
  ```
  ./decrypt.php <path-to-encrypted-xml> <xml-export-key> <master-syspass-key> <dest-file> [format]
  ```
+ - For example:
+ ```
+./decrypt.php encrypted_foo.xml 'foo-export-key' 'foo-master-syspass-key' decrypted xml
+ ```
 
 Tested with PHP 7.4.21 and XML exported with sysPass 3.0.
