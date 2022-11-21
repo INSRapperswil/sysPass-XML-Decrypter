@@ -21,7 +21,7 @@ class Exporter
         $csv = fopen($destFile, 'w');
         $header = [
             'url', 'type', 'username', 'password', 'hostname',
-            'extra', 'name', 'grouping'
+            'extra', 'name', 'grouping', 'notes', 'tag'
         ];
 
         fputcsv($csv, $header);
@@ -30,12 +30,14 @@ class Exporter
             $line = [
                 $account['url'],
                 '', // Type.
-                $account['login'],
-                $account['password'],
+                $account['login'], // Username.
+                $account['password'], //Password.
                 '', // Hostname.
-                'Client: ' . $account['client'],
-                $account['name'],
-                $account['category']
+                'Client: ' . $account['client'], //Extra.
+                $account['name'], // Name.
+                $account['category'], // Grouping.
+                $account['notes'], // Notes.
+                $account['tag'], // Tag.
             ];
 
             fputcsv($csv, $line);

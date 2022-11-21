@@ -19,11 +19,12 @@ class Decrypter
     {
         $decryptedNodes = $this->decryptXmlNodes($this->xmlPath, $this->exportKey);
         $decryptedNodesValidXML = $this->decryptedNodesToValidXML($decryptedNodes);
-        list($categories, $clients) = $this->getCategoriesAndClients($decryptedNodesValidXML);
+        list($categories, $clients, $tags) = $this->getCategoriesAndClientsAndTags($decryptedNodesValidXML);
         $decryptedAccounts = $this->decryptAccountPasswords(
             $decryptedNodesValidXML,
             $categories,
-            $clients
+            $clients,
+            $tags
         );
         return $decryptedAccounts;
     }
@@ -59,13 +60,13 @@ class Decrypter
         file_put_contents('decrypted.xml', $decryptedNodesValidXML);
         return $decryptedNodesValidXML;
     }
-    protected function getCategoriesAndClients($decryptedNodes)
+    protected function getCategoriesAndClientsAndTags($decryptedNodes)
     {
         $xmlDoc = new DOMDocument();
         $xmlDoc->loadXML($decryptedNodes, LIBXML_PARSEHUGE);
         $xmlDoc->saveXML();
-        $nodeNames = ['Category', 'Client'];
-        $categoriesAndClients = [];
+        $nodeNames = ['Category', 'Client', 'Tag'];
+        $categoriesAndClientsAndTags = [];
         $outerNodeIndex = 0;
         foreach ($nodeNames as $nodeName) {
             $nodes = $xmlDoc->getElementsByTagName($nodeName);
@@ -74,13 +75,13 @@ class Decrypter
                 $name = $node->getElementsByTagName('name')
                     ->item(0)
                     ->nodeValue;
-                $categoriesAndClients[$outerNodeIndex][$id] = $name;
+                $categoriesAndClientsAndTags[$outerNodeIndex][$id] = $name;
             }
             $outerNodeIndex++;
         }
-        return $categoriesAndClients;
+        return $categoriesAndClientsAndTags;
     }
-    protected function decryptAccountPasswords($decryptedNodes, $categories, $clients)
+    protected function decryptAccountPasswords($decryptedNodes, $categories, $clients, $tags)
     {
         $xmlDoc = new DOMDocument();
         $xmlDoc->loadXML($decryptedNodes, LIBXML_PARSEHUGE);
@@ -109,6 +110,17 @@ class Decrypter
             $categoryId = $accountNode->getElementsByTagName('categoryId')
                 ->item(0)
                 ->nodeValue;
+            $notes = $accountNode->getElementsByTagName('notes')
+                ->item(0)
+                ->nodeValue;
+
+            $tagNames = [];
+            if ($accountNode->getElementsByTagName('tag')) {
+                foreach ($accountNode->getElementsByTagName('tag') as $tag) {
+                    $tagNames[] = $tags[$tag->getAttribute('id')];
+                }
+            }
+
             $unlockedKey = $this->unlockKey($accountKey, $this->masterKey);
             $decryptedPassword = Crypto::decrypt($accountPassword, $unlockedKey);
             $encoding = mb_detect_encoding($decryptedPassword);
@@ -121,7 +133,9 @@ class Decrypter
                 'login' => $accountLogin,
                 'password' => $decryptedPassword,
                 'category' => $categories[$categoryId],
-                'client' => $clients[$clientId]
+                'client' => $clients[$clientId],
+                'notes' => str_replace(array("\r", "\n"), '', $notes),
+                'tag' => implode("/", $tagNames),
             ];
         }
         return $decryptedAccounts;
